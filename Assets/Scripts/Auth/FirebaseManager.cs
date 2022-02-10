@@ -11,6 +11,7 @@ using Firebase;
 public class FirebaseManager : MonoBehaviour
 {
     public static FirebaseManager instance;
+    public bool isLogin = false;
 
     [Header("Firebase")]
     public FirebaseAuth auth;
@@ -43,6 +44,17 @@ public class FirebaseManager : MonoBehaviour
     private void Start()
     {
         StartCoroutine(CheckAndFixDependencing());
+    }
+
+    private void Update()
+    {
+        if (DatabaseManager.instance.isLoadOK && isLogin)
+        {
+            StartCoroutine(UpdateCoin(DatabaseManager.instance.coin.ToString()));
+            StartCoroutine(UpdateDiamond(DatabaseManager.instance.diamond.ToString()));
+            StartCoroutine(UpdateXp(DatabaseManager.instance.xp.ToString()));
+            StartCoroutine(UpdateUserNameDatabase(user.DisplayName));
+        }
     }
 
     private IEnumerator CheckAndFixDependencing()
@@ -98,6 +110,8 @@ public class FirebaseManager : MonoBehaviour
             if (user.IsEmailVerified)
             {
                 GameManager.instance.ChangeScene(1);
+                StartCoroutine(LoadUserData());
+                isLogin = true;
             }
             else
             {
@@ -185,8 +199,10 @@ public class FirebaseManager : MonoBehaviour
         {
             if (user.IsEmailVerified)
             {
-                yield return new WaitForSeconds(1);
+                //yield return new WaitForSeconds(1);
                 GameManager.instance.ChangeScene(1);
+                StartCoroutine(LoadUserData());
+                isLogin = true;
             }
             else
             {
@@ -364,6 +380,7 @@ public class FirebaseManager : MonoBehaviour
     public void SignOut()
     {
         auth.SignOut();
+        isLogin = false;
         GameManager.instance.ChangeScene(0);
     }
 
@@ -378,18 +395,6 @@ public class FirebaseManager : MonoBehaviour
         if(DBTask.Exception != null)
         {
             Debug.LogError($"Update User Name data have some problem: {DBTask.Exception}");
-        }
-    }
-
-    private IEnumerator UpdateLevel(string _level)
-    {
-        var DBTask = databaseReference.Child("Users").Child(user.UserId).Child("level").SetValueAsync(_level);
-
-        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
-
-        if (DBTask.Exception != null)
-        {
-            Debug.LogError($"Update Xp data have some problem: {DBTask.Exception}");
         }
     }
 
@@ -441,7 +446,7 @@ public class FirebaseManager : MonoBehaviour
         }
         else if (DBTask.Result.Value == null)
         {
-            DatabaseManager.instance.DisplayDataOnUI(0, 0, 1, 0);
+            DatabaseManager.instance.DisplayDataOnUI(0, 0, 0);
         }
         else
         {
@@ -449,10 +454,9 @@ public class FirebaseManager : MonoBehaviour
 
             int coin = int.Parse(snapshot.Child("coin").Value.ToString());
             int diamond = int.Parse(snapshot.Child("diamond").Value.ToString());
-            int level = int.Parse(snapshot.Child("level").Value.ToString());
             int xp = int.Parse(snapshot.Child("xp").Value.ToString());
 
-            DatabaseManager.instance.DisplayDataOnUI(coin, diamond,level, xp);
+            DatabaseManager.instance.DisplayDataOnUI(coin, diamond, xp);
         }
     }
 }

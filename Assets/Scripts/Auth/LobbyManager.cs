@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 using UnityEngine.Networking;
 
 public class LobbyManager : MonoBehaviour
 {
     public static LobbyManager instance;
+    public bool isLoadData = false;
 
     [Header("UI Panel")]
     public GameObject profileUI;
@@ -24,6 +24,7 @@ public class LobbyManager : MonoBehaviour
     public Text userName_T;
     public Text settingUserName_T;
     public Text email_T;
+    public Text uid_T;
     public string token;
     [Space(5)]
 
@@ -74,13 +75,15 @@ public class LobbyManager : MonoBehaviour
             System.Uri photoUrl = FirebaseManager.instance.user.PhotoUrl;
             string name = FirebaseManager.instance.user.DisplayName;
             string email = FirebaseManager.instance.user.Email;
-
+            string uid = FirebaseManager.instance.user.UserId;
 
             // Set UI
             StartCoroutine(LoadImage(photoUrl.ToString()));
+            //StartCoroutine(FirebaseManager.instance.LoadUserData());
             userName_T.text = name;
             settingUserName_T.text = name;
             email_T.text = email;
+            uid_T.text = uid;        
         }
     }
 
@@ -148,20 +151,34 @@ public class LobbyManager : MonoBehaviour
     {
         ClearUI();
         LoadProfile();
-        actionSuccessPanelUI.SetActive(true);
-        actionSuccess_T.text = "頭像更改成功";
+        ActionSuccessPanel("頭像更改成功");
         
     }
 
     public void FunctionNotOpen()
     {
-        actionSuccessPanelUI.SetActive(true);
-        actionSuccess_T.text = "功能尚未開放";
+        ActionSuccessPanel("功能尚未開放");
     }
 
     public void SubmitProfileImageButton()
     {
         FirebaseManager.instance.UpdateProfilePicture(profilePictureLink_IF.text);
+    }
+
+    public void CopyUID()
+    {
+        TextEditor text = new TextEditor();
+        text.text = uid_T.text;
+        text.OnFocus();
+        text.Copy();
+
+        ActionSuccessPanel("複製成功");
+    }
+
+    public void ActionSuccessPanel(string text)
+    {
+        actionSuccessPanelUI.SetActive(true);
+        actionSuccess_T.text = text;
     }
 
     public void SignOutButton()
