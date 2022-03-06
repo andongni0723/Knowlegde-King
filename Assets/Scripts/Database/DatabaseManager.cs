@@ -133,17 +133,19 @@ public class DatabaseManager : MonoBehaviour
         return nowXp;
     }
 
-    public void addCoin()
+    ///// Change Value /////
+    
+    public void addCoin(int index)
     {
-        coin++;
+        coin += index;
     }
-    public void addDiamond()
+    public void addDiamond(int index)
     {
-        diamond++;
+        diamond += index;
     }
 
-    public void addXp()
+    public void addXp(int index)
     {
-        xp++;
+        xp += index;
     }
 } 

@@ -51,6 +51,11 @@ public class LobbyManager : MonoBehaviour
 
     [Header("Action Success Panel UI")]
     public Text actionSuccess_T;
+    [Space(5)]
+
+    [Header("Bank UI")]
+    public Slider bankBar_S;
+    public float bankToManeyAddValue = 0.1f;
 
     private void Awake()
     {
@@ -65,6 +70,15 @@ public class LobbyManager : MonoBehaviour
             LoadProfile();
         }
         
+    }
+
+    private void Update()
+    {
+        //Bank Add Money
+        if(bankBar_S.value == 1)
+        {
+            BankAddMoney();
+        }
     }
 
     private void LoadProfile()
@@ -184,5 +198,18 @@ public class LobbyManager : MonoBehaviour
     public void SignOutButton()
     {
         FirebaseManager.instance.SignOut();
+    }
+
+    ///// Lobby Button /////
+    
+    public void BankButton()
+    {
+        bankBar_S.value += bankToManeyAddValue;
+    }
+
+    public void BankAddMoney()
+    {
+        bankBar_S.value = 0;
+        DatabaseManager.instance.addCoin(5);
     }
 }
